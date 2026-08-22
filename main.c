@@ -7,6 +7,8 @@
 
 #include "socket_helper.h"
 #include "config.h"
+#include "password_input.h"
+#include "scram.h"
 
 #define POSTGRES_PROTOCOL_VERSION 0x00030000 /// Postgres protocol version 3.0 
 
@@ -93,6 +95,25 @@ int main(void) {
     }
     
     printf("[SUCCESS] Startup message sent.\n");
+
+
+    char password[256];
+    memset(password, 0, sizeof(password));
+    if(read_password(password, sizeof(password)) != 0) {
+        fprintf(stderr, "Failed to read password.\n");
+        close(sock);
+        return 1;
+    }
+
+
+    if(SCRAM_Authentication(sock, cfg.user, password) != 0) {
+        fprintf(stderr, "[AUTH]: SCRAM authentication failed\n");
+        close(sock);
+        return 1;
+    }
+    memset(password, 0, sizeof(password));
+    printf("[SUCCESS] Authenticated to PostgreSQL!\n");
+    close(sock);
 
     return 0;
 }
