@@ -120,7 +120,7 @@ int main(void) {
         return 1;
     }
 
-    DatabaseResult *res = database_query(sock, "SELECT * FROM artisti"); ///  inserting querry here for testing
+    DatabaseResult *res = database_query(sock, ""); ///  inserting querry here for testing
     if(res -> error) {
         fprintf(stderr, "[QUERY] %s\n", res -> error);
     } else {
