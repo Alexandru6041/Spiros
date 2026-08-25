@@ -35,7 +35,7 @@ typedef struct {
 
 DatabaseConnection *db_connect(const char *config_path, const char *password);
 
-DatabaseResult *db_query(DatabaseConnection *conn, const char *sql);
+DatabaseResult *db_query(int sock, const char *sql);
 DatabaseResult *database_query(DatabaseConnection *conn, const char *sql);
 DatabaseResult *database_query_params(int sock, const char *sql, const char **params, int nparams);
 

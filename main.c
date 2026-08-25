@@ -37,7 +37,6 @@ int main(void) {
     }
 
     const char *parameters[] = {
-        "",
     };
 
     DatabaseResult *res = database_query_params(conn -> sock, "", parameters, 0);//  inserting querry here for testing
