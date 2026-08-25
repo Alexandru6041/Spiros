@@ -120,7 +120,12 @@ int main(void) {
         return 1;
     }
 
-    DatabaseResult *res = database_query(sock, ""); ///  inserting querry here for testing
+    const char *parameters[] = {
+        "",
+    };
+
+    DatabaseResult *res = database_query_params(sock, "", parameters, 0);//  inserting querry here for testing
+    
     if(res -> error) {
         fprintf(stderr, "[QUERY] %s\n", res -> error);
     } else {
