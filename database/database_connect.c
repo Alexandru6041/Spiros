@@ -139,6 +139,8 @@ void db_disconnect(DatabaseConnection *conn) {
         uint8_t term[5] = {'X', 0, 0, 0, 4}; ///Sending 'X' terminate signal to POSTGRES.
         send(conn -> sock, term, 5, 0);
         close(conn -> sock); 
+        conn -> connected = 0;
+        printf("[CONNECTION]: Disconnected from the database.\n");
     }
     free(conn);
 }

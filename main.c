@@ -39,7 +39,7 @@ int main(void) {
     const char *parameters[] = {
     };
 
-    DatabaseResult *res = database_query_params(conn -> sock, "", parameters, 0);//  inserting querry here for testing
+    DatabaseResult *res = database_query_params(conn, "", parameters, 0);//  inserting querry here for testing
     if(res -> error) {
         fprintf(stderr, "[QUERY] %s\n", res -> error);
     } else {
@@ -54,8 +54,9 @@ int main(void) {
             }
         }
     }
+    
     database_result_free(res);
+    db_disconnect(conn);
 
-    close(conn -> sock);
-
+    return 0;
 }
