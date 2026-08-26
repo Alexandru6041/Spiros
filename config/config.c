@@ -14,7 +14,6 @@ int load_config(const char *path, DatabaseConfig *cfg) {
     ///Default Values
     strcpy(cfg -> host, "127.0.0.1");
     cfg -> port = 5432;
-    cfg -> user[0] = '\0';
     cfg -> dbname[0] = '\0';
 
     char line[512];
@@ -39,9 +38,6 @@ int load_config(const char *path, DatabaseConfig *cfg) {
                 cfg -> port = (unsigned short) p;
             }
 
-            else if(strcmp(key, "user") == 0)
-                strncpy(cfg -> user, value, sizeof(cfg -> user) - 1);
-
             else if(strcmp(key, "database") == 0)
                 strncpy(cfg -> dbname, value, sizeof(cfg -> dbname) - 1);
         }
@@ -49,8 +45,8 @@ int load_config(const char *path, DatabaseConfig *cfg) {
 
     fclose(current_file);
 
-    if(cfg -> user[0] == '\0' || cfg -> dbname[0] == '\0') {
-        fprintf(stderr, "[CONFIG]: User and Database name are required.\n");
+    if(cfg -> dbname[0] == '\0') {
+        fprintf(stderr, "[CONFIG]: Database name is required.\n");
         return -1;
     }
 

@@ -15,7 +15,7 @@
 #define POSTGRES_PROTOCOL_VERSION 0x00030000 /// Postgres protocol version 3.0 
 
 
-static int send_startup_message(int sock, char *user, char *database_name, char *host, unsigned int port) {
+static int send_startup_message(int sock, const char *user, char *database_name, char *host, unsigned int port) {
         ///Building the payload for the socket
     unsigned char buf[1024];
     int pos = 4; ///Reserving bytes 0-3 for the total length of the message(required by Postgres format)
@@ -67,7 +67,7 @@ static int send_startup_message(int sock, char *user, char *database_name, char 
     return 0;
 }
 
-DatabaseConnection *db_connect(const char *config_path, const char *password) {
+DatabaseConnection *db_connect(const char *config_path, const char *username, const char *password) {
     DatabaseConfig cfg;
     if(load_config(config_path, &cfg) != 0) {
         fprintf(stderr, "[CONFIG]: Failed to load config!\n");
@@ -99,14 +99,14 @@ DatabaseConnection *db_connect(const char *config_path, const char *password) {
         return NULL;
     }
 
-    if(send_startup_message(sock, cfg.user, cfg.dbname, cfg.host, cfg.port) != 0) {
+    if(send_startup_message(sock, username, cfg.dbname, cfg.host, cfg.port) != 0) {
         fprintf(stderr, "[DATABASE CONNECTION]: Startup message failed.\n");
         close(sock);
         return NULL;
     }
     
 
-    if(SCRAM_Authentication(sock, cfg.user, password) != 0) {
+    if(SCRAM_Authentication(sock, username, password) != 0) {
         fprintf(stderr, "[AUTH]: SCRAM authentication failed\n");
         close(sock);
         return NULL;

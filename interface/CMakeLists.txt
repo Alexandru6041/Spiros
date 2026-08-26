@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.16)
 
-project(interface VERSION 0.1 LANGUAGES CXX)
+project(interface VERSION 0.1 LANGUAGES CXX C)
 
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
@@ -21,6 +21,11 @@ qt_add_qml_module(appinterface
     URI interface
     QML_FILES
         Main.qml
+        SOURCES databasebridge.h databasebridge.cpp
+        RESOURCES
+            icons/svgs/regular/eye.svg
+            icons/svgs/regular/eye-slash.svg
+
 )
 
 # Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.
@@ -36,6 +41,26 @@ set_target_properties(appinterface PROPERTIES
 
 target_link_libraries(appinterface
     PRIVATE Qt6::Quick
+)
+
+target_include_directories(appinterface PRIVATE
+    ../database/include
+    ../config/include
+    ../connection/include
+    ../security/include
+)
+
+target_sources(appinterface PRIVATE
+    ../database/database.c
+    ../database/database_connect.c
+    ../config/config.c
+    ../connection/helpers/socket_helper.c
+    ../security/src/sha256.c
+    ../security/src/hmac.c
+    ../security/src/pbkdf2.c
+    ../security/src/base64.c
+    ../security/src/scram.c
+    ../security/src/password_input.c
 )
 
 install(TARGETS appinterface

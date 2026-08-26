@@ -36,7 +36,7 @@ extern "C" {
         char *error;
     } DatabaseResult;
 
-    DatabaseConnection *db_connect(const char *config_path, const char *password);
+    DatabaseConnection *db_connect(const char *config_path, const char *username, const char *password);
 
     DatabaseResult *database_query(DatabaseConnection *conn, const char *sql);
     DatabaseResult *database_query_params(DatabaseConnection *conn, const char *sql, const char **params, int nparams);
