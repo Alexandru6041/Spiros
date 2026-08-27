@@ -25,6 +25,8 @@ qt_add_qml_module(appinterface
         RESOURCES
             icons/svgs/regular/eye.svg
             icons/svgs/regular/eye-slash.svg
+            icons/svgs/solid/exclamation-triangle.svg
+            QML_FILES Dashboard.qml
 
 )
 
