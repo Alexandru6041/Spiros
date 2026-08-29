@@ -8,6 +8,8 @@ Item {
 
     anchors.fill: parent
 
+    property string username: ""
+
     Row {
         anchors.fill: parent
 
@@ -119,7 +121,11 @@ Item {
                         spacing: 2
 
                         Text {
-                            text: "Buna seara, Alex"
+                            text: {
+                                var current_date = new Date().getHours()
+                                var greeting = current_date < 12 ? "Buna dimineata" : (current_date < 18 ? "Buna ziua" : "Buna seara")
+                                return greeting + ", " + dashboard.username
+                            }
                             color: "#2a0d16"
                             font.pixelSize: 23
                             font.family: "Georgia"
@@ -127,7 +133,7 @@ Item {
                         }
 
                         Text {
-                            text: "Joi, 27 August 2026"
+                            text: Qt.formatDate(new Date(), "dddd, d MMMM yyyy")
                             color: "#8a6b70"
                             font.pixelSize: 13
                         }
@@ -140,7 +146,7 @@ Item {
                         color: "#2a0d16"
                         Text {
                             anchors.centerIn: parent
-                            text: "A"
+                            text: dashboard.username.charAt(0).toUpperCase()
                             color: "#ECDAD6"
                             font.pixelSize: 14
                             font.family: "Georgia"

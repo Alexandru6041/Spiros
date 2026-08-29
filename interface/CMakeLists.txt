@@ -27,6 +27,7 @@ qt_add_qml_module(appinterface
             icons/svgs/regular/eye-slash.svg
             icons/svgs/solid/exclamation-triangle.svg
             QML_FILES Dashboard.qml
+            QML_FILES Auth.qml
 
 )
 
