@@ -9,6 +9,9 @@ Item {
     anchors.fill: parent
 
     property string username: ""
+    property var bridge: null
+
+    Component.onCompleted: console.log("[DEBUG] DASHBOARD bridge obj: ", bridge)
 
     Row {
         anchors.fill: parent
@@ -78,15 +81,6 @@ Item {
                             anchors.leftMargin: 24
                             anchors.verticalCenter: parent.verticalCenter
                             spacing: 11
-
-
-                            Image {
-                                source: "icons/svgs/" + modelData.icon
-                                anchors.verticalCenter: parent.verticalCenter
-                                fillMode:Image.PreserveAspectFit
-                                sourceSize.width: 16
-                                sourceSize.height: 16
-                            }
 
                             Text {
                                 text: modelData.label
@@ -176,7 +170,7 @@ Item {
                             spacing: 8
 
                             Text {text: "ARTISTI"; color: "#8A6B70"; font.pixelSize: 11; font.letterSpacing: 0.5}
-                            Text {text: "6"; color: "#2A0D16"; font.pixelSize: 30; font.family: "Georgia"}
+                            Text {text: bridge ? bridge.getCount("artisti") : "0"; color: "#2A0D16"; font.pixelSize: 30; font.family: "Georgia"}
                         }
                     }
 
@@ -195,7 +189,7 @@ Item {
                             spacing: 8
 
                             Text {text: "PIESE"; color: "#8A6B70"; font.pixelSize: 11; font.letterSpacing: 0.5}
-                            Text {text: "83"; color: "#2A0D16"; font.pixelSize: 30; font.family: "Georgia"}
+                            Text {text: bridge ? bridge.getCount("piese") : "0"; color: "#2A0D16"; font.pixelSize: 30; font.family: "Georgia"}
                         }
                     }
 
@@ -215,7 +209,7 @@ Item {
                             spacing: 8
 
                             Text {text: "CONTRACTE"; color: "#8A6B70"; font.pixelSize: 11; font.letterSpacing: 0.5}
-                            Text {text: "12"; color: "#2A0D16"; font.pixelSize: 30; font.family: "Georgia"}
+                            Text {text: bridge ? bridge.getCount("contracte") : "0"; color: "#2A0D16"; font.pixelSize: 30; font.family: "Georgia"}
                         }
                     }
 

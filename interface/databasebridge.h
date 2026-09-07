@@ -16,6 +16,8 @@ class DatabaseBridge : public QObject
         explicit DatabaseBridge(QObject *parent = nullptr);
 
         Q_INVOKABLE bool login(const QString &username, const QString &password);
+        Q_INVOKABLE int getCount(const QString &table);
+        Q_INVOKABLE QVariantList getTopPlatforms();
 
     private:
         DatabaseConnection *conn = nullptr;

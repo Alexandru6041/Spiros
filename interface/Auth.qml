@@ -5,14 +5,9 @@ import QtQuick.Window
 
 Item {
     id:authScreen
+    property var bridge: null
     anchors.fill: parent
-
     signal authSuccess(string username)
-
-    DatabaseBridge {
-        id: db
-    }
-
 
 
     Row {
@@ -221,7 +216,8 @@ Item {
                     }
 
                     onClicked: {
-                        var success = db.login(usernameField.text, passwordField.text);
+                        var success = bridge.login(usernameField.text, passwordField.text);
+                        console.log("[DEBUG]: AUTH logged in with bridge obj: ", bridge);
                         loginMessage.visible = true;
 
                         if(success) {

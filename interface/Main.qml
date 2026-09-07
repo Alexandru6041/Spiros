@@ -17,10 +17,15 @@ Window {
         sourceComponent: authComponent
     }
 
+    DatabaseBridge {
+        id: db
+    }
+
     Component {
         id: authComponent
 
         Auth {
+            bridge: db
             onAuthSuccess: (username) => {
                 window.currentUser = username
                 screenContainer.sourceComponent = dashboardComponent
@@ -33,6 +38,7 @@ Window {
 
         Dashboard {
             username: window.currentUser
+            bridge: db
         }
     }
 }
