@@ -17,7 +17,7 @@ Window {
         sourceComponent: authComponent
     }
 
-    DatabaseBridge {
+    Database {
         id: db
     }
 

@@ -2,7 +2,7 @@
 #define CONFIG_H
 
 #ifndef CONFIG_PATH
-#define CONFIG_PATH "" ///include config path here
+#define CONFIG_PATH "../../../../../../database.conf" ///include config path here
 #endif
 
 typedef struct {

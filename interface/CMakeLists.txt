@@ -21,16 +21,27 @@ qt_add_qml_module(appinterface
     URI interface
     QML_FILES
         Main.qml
-        SOURCES databasebridge.h databasebridge.cpp
+        SOURCES
+            database.h
+            database.cpp
+
+            queryloader.h
+            queryloader.cpp
+
         RESOURCES
             icons/svgs/regular/eye.svg
             icons/svgs/regular/eye-slash.svg
             icons/svgs/solid/exclamation-triangle.svg
-            QML_FILES Dashboard.qml
-            QML_FILES Auth.qml
+
+            queries/count_artisti.sql
+            queries/count_contracte.sql
+            queries/count_piese.sql
+            queries/top_platforms.sql
+
+        QML_FILES Dashboard.qml
+        QML_FILES Auth.qml
 
 )
-
 # Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.
 # If you are developing for iOS or macOS you should consider setting an
 # explicit, fixed bundle identifier manually though.
