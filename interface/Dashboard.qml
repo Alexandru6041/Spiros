@@ -9,9 +9,15 @@ Item {
     anchors.fill: parent
 
     property string username: ""
+
+    property var platformRepo: null
+    property var pieseRepo: null
+    property var contractRepo: null
+    property var artistRepo: null
+
     property var bridge: null
 
-    Component.onCompleted: console.log("[DEBUG] DASHBOARD bridge obj: ", bridge)
+    Component.onCompleted: console.log("[DEBUG] DASHBOARD platform repo: ", platformRepo)
 
     Row {
         anchors.fill: parent
@@ -117,7 +123,7 @@ Item {
                         Text {
                             text: {
                                 var current_date = new Date().getHours()
-                                var greeting = current_date < 12 ? "Buna dimineata" : (current_date < 18 ? "Buna ziua" : "Buna seara")
+                                var greeting = current_date < 12 && current_date > 5 ? "Buna dimineata" : (current_date < 18 ? "Buna ziua" : "Buna seara")
                                 return greeting + ", " + dashboard.username
                             }
                             color: "#2a0d16"
@@ -170,7 +176,7 @@ Item {
                             spacing: 8
 
                             Text {text: "ARTISTI"; color: "#8A6B70"; font.pixelSize: 11; font.letterSpacing: 0.5}
-                            Text {text: bridge ? bridge.getCount("artisti") : "0"; color: "#2A0D16"; font.pixelSize: 30; font.family: "Georgia"}
+                            Text {text: artistRepo ? artistRepo.getCount() : "0"; color: "#2A0D16"; font.pixelSize: 30; font.family: "Georgia"}
                         }
                     }
 
@@ -189,7 +195,7 @@ Item {
                             spacing: 8
 
                             Text {text: "PIESE"; color: "#8A6B70"; font.pixelSize: 11; font.letterSpacing: 0.5}
-                            Text {text: bridge ? bridge.getCount("piese") : "0"; color: "#2A0D16"; font.pixelSize: 30; font.family: "Georgia"}
+                            Text {text: pieseRepo ? pieseRepo.getCount() : "0"; color: "#2A0D16"; font.pixelSize: 30; font.family: "Georgia"}
                         }
                     }
 
@@ -209,7 +215,7 @@ Item {
                             spacing: 8
 
                             Text {text: "CONTRACTE"; color: "#8A6B70"; font.pixelSize: 11; font.letterSpacing: 0.5}
-                            Text {text: bridge ? bridge.getCount("contracte") : "0"; color: "#2A0D16"; font.pixelSize: 30; font.family: "Georgia"}
+                            Text {text: contractRepo ? contractRepo.getCount() : "0"; color: "#2A0D16"; font.pixelSize: 30; font.family: "Georgia"}
                         }
                     }
 
@@ -250,11 +256,7 @@ Item {
 
                         ///Slidere Platforme
                         Repeater {
-                            model: [
-                                { name: "YouTube", done :22, total: 24 },
-                                { name: "Spotify", done: 18, total: 24},
-                                { name: "Apple Music", done: 15, total:30}
-                            ]
+                            model: platformRepo ? platformRepo.getTopPlatforms() : []
 
                             Column {
                                 width: distributionPanel.width - 36
@@ -265,7 +267,7 @@ Item {
                                     width: parent.width
 
                                     Text {
-                                        text: modelData.name
+                                        text: modelData.nume
                                         color: "#2A0D16"
                                         font.pixelSize: 12
                                         width: parent.width - 60
@@ -273,7 +275,7 @@ Item {
 
 
                                     Text {
-                                        text: modelData.done + " / " + modelData.total
+                                        text: modelData.distribuite + " / " + modelData.total
                                         color: "#8A6B70"
                                         font.pixelSize: 12
                                         horizontalAlignment: Text.AlignRight
@@ -288,7 +290,7 @@ Item {
                                     radius: 3
                                     color: "#EFE5DA"
                                     Rectangle {
-                                        width: parent.width * (modelData.done / modelData.total)
+                                        width: parent.width * (Number(modelData.distribuite) / Number(modelData.total))
                                         height: parent.height
                                         radius: 3
                                         color: "#7A2438"

@@ -28,6 +28,19 @@ qt_add_qml_module(appinterface
             queryloader.h
             queryloader.cpp
 
+            repositories/platformrepository.h
+
+            repositories/artistrepository.h
+
+            repositories/pieserepository.h
+
+            repositories/contractrepository.h
+
+
+            repositories/repository.h
+            repositories/repository.cpp
+
+
         RESOURCES
             icons/svgs/regular/eye.svg
             icons/svgs/regular/eye-slash.svg
@@ -62,6 +75,8 @@ target_include_directories(appinterface PRIVATE
     ../config/include
     ../connection/include
     ../security/include
+
+    repositories
 )
 
 target_sources(appinterface PRIVATE

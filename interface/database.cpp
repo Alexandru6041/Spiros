@@ -46,7 +46,7 @@ QVariantList Database::runQuery(const QByteArray &sql) {
         for(int j = 0; j < res -> number_columns; j++) {
             const char *colName = res -> columns[j].name;
             const char *val = database_get_value(res, i, j);
-            row[QString::fromUtf8(colName)] = val ? QString::fromUtf8(val) : QVariant();
+            row[QString::fromUtf8(colName)] = val ? QString::fromUtf8(val) : QVariant(); /// NULL DATA / undefined
         }
 
         rows.append(row);

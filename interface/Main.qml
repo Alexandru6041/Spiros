@@ -21,6 +21,26 @@ Window {
         id: db
     }
 
+    PlatformRepository {
+        id: platformRepository
+        database: db
+    }
+
+    ArtistRepository {
+        id: artistiRepository
+        database: db
+    }
+
+    PieseRepository {
+        id: pieseRepository
+        database: db
+    }
+
+    ContractRepository {
+        id: contractRepository
+        database: db
+    }
+
     Component {
         id: authComponent
 
@@ -38,7 +58,11 @@ Window {
 
         Dashboard {
             username: window.currentUser
-            bridge: db
+            platformRepo: platformRepository
+            artistRepo: artistiRepository
+            pieseRepo: pieseRepository
+            contractRepo: contractRepository
+
         }
     }
 }

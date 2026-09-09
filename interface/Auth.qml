@@ -217,7 +217,7 @@ Item {
 
                     onClicked: {
                         var success = bridge.login(usernameField.text, passwordField.text);
-                        console.log("[DEBUG]: AUTH logged in with bridge obj: ", bridge);
+                        console.log("[DEBUG]: AUTH logged in with platformRepo obj: ", platformRepository);
                         loginMessage.visible = true;
 
                         if(success) {
