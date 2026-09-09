@@ -4,6 +4,12 @@
 #include <QDebug>
 
 Database::Database(QObject *parent) : QObject(parent) {}
+Database::~Database() {
+    if(conn) {
+        db_disconnect(conn);
+        conn = nullptr;
+    }
+}
 
 bool Database::login(const QString &username, const QString &password) {
     QByteArray bytes = password.toUtf8();

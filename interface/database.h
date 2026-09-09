@@ -16,6 +16,7 @@ class Database : public QObject
 
     public:
         explicit Database(QObject *parent = nullptr);
+        ~Database();
 
         Q_INVOKABLE bool login(const QString &username, const QString &password);
 
