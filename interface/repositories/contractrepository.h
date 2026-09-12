@@ -14,7 +14,7 @@ class ContractRepository : public Repository {
         explicit ContractRepository(QObject *parent = nullptr) : Repository(parent) {};
 
         Q_INVOKABLE int getCount() {
-            return countFrom("count_contracte");
+            return countFrom("contracte/count_contracte");
         }
 };
 

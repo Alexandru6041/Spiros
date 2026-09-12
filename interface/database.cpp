@@ -62,3 +62,49 @@ QVariantList Database::runQuery(const QByteArray &sql) {
     return rows;
 }
 
+
+QVariantList Database::runQueryParams(const QByteArray &sql, const QStringList &params) {
+    QVariantList rows;
+
+    if(!conn)
+        return rows;
+
+
+    int n = params.size();
+    QList <QByteArray> byteParams;
+
+    for(const QString &p : params)
+        byteParams.append(p.toUtf8());
+
+    const char **cParams = new const char*[n];
+    for(int i = 0; i < n; i++) {
+        cParams[i] = byteParams[i].constData();
+    }
+
+    DatabaseResult *res = database_query_params(conn, sql.constData(), cParams, n);
+    delete[] cParams;
+
+    if(!res || res -> error) {
+        if(res)
+            database_result_free(res);
+
+        return rows;
+    }
+
+    for(int r = 0; r < res -> number_rows; r++) {
+        QVariantMap row;
+
+        for(int c = 0; c < res -> number_columns; c++) {
+            const char *colName = res -> columns[c].name;
+            const char *val = database_get_value(res, r, c);
+
+            row[QString::fromUtf8(colName)] = val ? QString::fromUtf8(val) : QVariant();
+        }
+
+        rows.append(row);
+    }
+
+    database_result_free(res);
+
+    return rows;
+}

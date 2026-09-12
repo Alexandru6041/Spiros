@@ -25,6 +25,7 @@ class Database : public QObject
         }
 
         QVariantList runQuery(const QByteArray &sql);
+        QVariantList runQueryParams(const QByteArray &sql, const QStringList &params);
 
     private:
         DatabaseConnection *conn = nullptr;

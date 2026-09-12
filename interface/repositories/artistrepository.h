@@ -13,7 +13,12 @@ class ArtistRepository : public Repository {
         explicit ArtistRepository(QObject *parent = nullptr) : Repository(parent) {};
 
         Q_INVOKABLE int getCount() {
-            return countFrom("count_artisti");
+            return countFrom("artisti/count_artisti");
+        }
+
+        Q_INVOKABLE QVariantList listArtists(const QString &search) {
+            return queryRowsParams("artisti/list_artisti", QStringList {
+                                                               search });
         }
 
 };

@@ -13,7 +13,7 @@ public:
     explicit PieseRepository(QObject *parent = nullptr) : Repository(parent) {};
 
     Q_INVOKABLE int getCount() {
-        return countFrom("count_piese");
+        return countFrom("piese/count_piese");
     }
 
 };

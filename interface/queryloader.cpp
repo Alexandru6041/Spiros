@@ -9,6 +9,7 @@ QByteArray QueryLoader::load(const QString &name) {
     }
 
     QFile file(":qt/qml/interface/queries/" + name + ".sql");
+
     if(!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
         qWarning() << "QueryLoader: could not load query: " << name;
         return QByteArray();

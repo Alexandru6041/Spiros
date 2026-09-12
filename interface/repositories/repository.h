@@ -24,9 +24,10 @@ class Repository : public QObject {
         void databaseChanged();
 
     protected:
-        int countFrom(const QString &queryName);
+        int countFrom(const QString &queryLocation);
 
-        QVariantList queryRows(const QString &queryName);
+        QVariantList queryRows(const QString &queryLocation);
+        QVariantList queryRowsParams(const QString &queryLocation, const QStringList &params);
 
         Database *m_db = nullptr;
         QueryLoader m_loader;

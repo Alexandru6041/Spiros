@@ -10,8 +10,8 @@ void Repository::setDatabase(Database *db) {
 }
 
 
-int Repository::countFrom(const QString &queryName) {
-    QVariantList rows = queryRows(queryName);
+int Repository::countFrom(const QString &queryLocation) {
+    QVariantList rows = queryRows(queryLocation);
 
     if(rows.isEmpty())
         return 0;
@@ -21,15 +21,27 @@ int Repository::countFrom(const QString &queryName) {
     return row.value("count").toInt();
 }
 
-QVariantList Repository::queryRows(const QString &queryName) {
+QVariantList Repository::queryRows(const QString &queryLocation) {
     if(!m_db) {
         return QVariantList();
     }
 
-    QByteArray sql = m_loader.load(queryName);
+    QByteArray sql = m_loader.load(queryLocation);
 
     if(sql.isEmpty())
         return QVariantList();
 
     return m_db -> runQuery(sql);
+}
+
+QVariantList Repository::queryRowsParams(const QString &queryLocation, const QStringList &params) {
+    if(!m_db)
+        return QVariantList();
+
+    QByteArray sql = m_loader.load(queryLocation);
+
+    if(sql.isEmpty())
+        return QVariantList();
+
+    return m_db -> runQueryParams(sql, params);
 }

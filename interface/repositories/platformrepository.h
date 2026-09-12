@@ -13,7 +13,7 @@ public:
     explicit PlatformRepository(QObject *parent = nullptr) : Repository(parent) {};
 
     Q_INVOKABLE QVariantList getTopPlatforms() {
-        return queryRows("top_platforms");
+        return queryRows("platforme/top_platforms");
     }
 
 };

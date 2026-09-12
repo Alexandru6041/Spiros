@@ -9,13 +9,14 @@ Item {
     anchors.fill: parent
 
     property string username: ""
+    property string currentPage: "panou"
+
+    property int animationDuration: 250
 
     property var platformRepo: null
     property var pieseRepo: null
     property var contractRepo: null
     property var artistRepo: null
-
-    property var bridge: null
 
     Component.onCompleted: console.log("[DEBUG] DASHBOARD platform repo: ", platformRepo)
 
@@ -60,26 +61,40 @@ Item {
 
                 Repeater {
                     model: [
-                        { label: "Panou", icon: "", active: true},
-                        { label: "Artisti", icon: "", active: false},
-                        { label: "Piese", icon: "", active: false},
-                        { label: "Albume", icon: "", active: false},
-                        { label: "Contracte", icon: "", active: false},
-                        { label: "Distributie", icon: "", active: false}
+                        { label: "Panou", page: "panou"},
+                        { label: "Artisti", page: "artisti"},
+                        { label: "Piese", page: "piese"},
+                        { label: "Albume", page: "albume"},
+                        { label: "Contracte", page: "contracte"},
+                        { label: "Distributie", page: "distributie"}
 
                     ]
 
                     Rectangle {
                         width: sidebar.width
                         height: 44
-                        color: modelData.active ? "#3d1420" : "transparent"
+                        color: dashboard.currentPage === modelData.page ? "#3d1420" : "transparent"
 
+
+                        Behavior on color {
+                            ColorAnimation {
+                                duration: animationDuration
+                                easing.type: Easing.InOutQuad
+                            }
+                        }
 
                         Rectangle {
                             width: 2
                             height: parent.height
                             color: "#A04A5E"
-                            visible: modelData.active
+                            opacity: dashboard.currentPage === modelData.page ? 1 : 0
+
+                            Behavior on opacity {
+                                NumberAnimation {
+                                    duration: animationDuration
+                                    easing.type: Easing.InOutQuad
+                                }
+                            }
                         }
 
                         Row {
@@ -90,9 +105,25 @@ Item {
 
                             Text {
                                 text: modelData.label
-                                color: modelData.active ? "#F2E4E0" : "#B98C94"
+
+                                color: modelData.page === dashboard.currentPage ? "#F2E4E0" : "#B98C94"
+                                Behavior on color {
+                                    ColorAnimation {
+                                        duration: animationDuration
+                                    }
+                                }
+
                                 font.pixelSize: 15
                                 anchors.verticalCenter: parent.verticalCenter
+                            }
+                        }
+
+                        MouseArea {
+                            anchors.fill: parent
+                            cursorShape: Qt.PointingHandCursor
+                            onClicked: {
+                                dashboard.currentPage = modelData.page
+                                console.log("Switched to page: ", modelData.page)
                             }
                         }
                     }
@@ -100,11 +131,63 @@ Item {
 
             }
         }
-
-        //Sidebar right
         Rectangle {
             width: parent.width - sidebar.width
             height: parent.height
+
+            color: "#F2EBE2"
+
+            Loader {
+                id:contentLoader
+
+                anchors.fill: parent
+
+                width: parent.width - sidebar.width
+                height: parent.height
+
+                sourceComponent: {
+                    if(dashboard.currentPage === "panou")
+                        return panouPage
+
+                    if(dashboard.currentPage === "artisti")
+                        return artistiPage
+
+                    return panouPage
+                }
+
+                onLoaded: {
+                    if(item) {
+                        item.opacity = 0
+                        fadeIn.restart()
+                    }
+                }
+
+
+                NumberAnimation {
+                    id: fadeIn
+                    target: contentLoader.item
+
+                    property: "opacity"
+                    from: 0
+                    to: 1
+
+
+
+                    duration: animationDuration
+                    easing.type: Easing.InOutQuad
+                }
+            }
+        }
+
+
+
+    }
+
+    ///Right Panel
+    Component {
+        id:panouPage
+
+        Rectangle {
             color: "#F2EBE2"
 
             Column {
@@ -357,8 +440,230 @@ Item {
                 }
 
             }
+
         }
-
-
     }
+
+
+
+
+    Component {
+        id: artistiPage
+        Rectangle {
+            id:artistiRoot
+            color: "#F2EBE2"
+
+            property string searchText: ""
+
+            property var artists: dashboard.artistRepo ? dashboard.artistRepo.listArtists(searchText) : []
+
+            Column {
+                anchors.fill: parent
+                anchors.margins: 30
+                spacing: 18
+
+                Row {
+                    width: parent.width
+
+                    Text {
+                        text: "Artisti"
+                        color: "#2A0D16"
+
+                        font.pixelSize: 24
+                        font.family: "Georgia"
+
+                        width: parent.width - 140
+                    }
+
+                    ///Top Buttons
+                    Rectangle {
+                        width: 130
+                        height: 36
+                        radius: 7
+
+                        color: "#4E1826"
+                        Text {
+                            anchors.centerIn: parent
+
+                            text: "+ Adauga artist"
+                            color: "#ECDAD6"
+                            font.pixelSize: 12
+                        }
+
+                        MouseArea {
+                            anchors.fill: parent
+                            cursorShape: Qt.PointingHandCursor
+                            onClicked: console.log("Add artist button clicked")
+                        }
+                    }
+                }
+
+                //Search Box
+                Rectangle {
+                    width: parent.width
+                    height: 40
+                    radius: 8
+                    color: "#ffffff"
+                    border.color: "#E3D5C8"
+                    border.width: 1
+
+
+                    TextField {
+                        id:searchField
+
+                        anchors.fill: parent
+
+                        anchors.leftMargin: 10
+                        placeholderText: "Cauta dupa nume sau alias..."
+
+                        font.pixelSize: 13
+                        color: "#2A0D16"
+
+                        background: null
+                        verticalAlignment: TextInput.AlignVCenter
+
+                        onTextChanged: artistiRoot.searchText = text
+                    }
+                }
+
+                ///Column headers
+                Row {
+                    width: parent.width - 28
+                    x: 14
+
+                    Text {
+                        text: "NUME"
+
+                        color: "#8A6B70"
+                        font.pixelSize: 11
+                        width: parent.width - 160
+                    }
+
+                    Text {
+                        text: "PIESE"
+
+                        color: "#8A6B70"
+                        font.pixelSize: 11
+                        width: 70
+                        horizontalAlignment: Text.AlignRight
+                    }
+
+                    Text {
+                        text: "CONTRACTE"
+
+                        color: "#8A6B70"
+                        font.pixelSize: 11
+                        width: 90
+                        horizontalAlignment: Text.AlignRight
+                    }
+                }
+
+                ///List
+                Rectangle {
+                    width: parent.width
+                    height: parent.height - 160
+
+                    radius: 10
+                    color: "#ffffff"
+                    border.color: "#E3D5C8"
+                    border.width: 1
+
+                    clip: true
+
+                    ListView {
+                        anchors.fill: parent
+
+                        anchors.margins: 1
+                        model: artists
+                        clip: true
+
+                        delegate: Rectangle {
+                            width:ListView.view.width
+                            height: 50
+
+                            color: rowMouse.containsMouse ? "#FAF6F0" : "transparent"
+
+                            Row {
+                                anchors.left: parent.left
+                                anchors.right: parent.right
+                                anchors.verticalCenter: parent.verticalCenter
+                                anchors.leftMargin: 14
+                                anchors.rightMargin: 14
+
+                                spacing: 11
+                                Rectangle {
+                                    width: 30
+                                    height: 30
+                                    radius: 15
+                                    color: "#E8D3D0"
+
+                                    anchors.verticalCenter: parent.verticalCenter
+
+                                    Text {
+                                        anchors.centerIn: parent
+                                        text: modelData.nume_real ? modelData.nume_real.charAt(0).toUpperCase() : "?"
+                                        color: "#5A1F2C"
+                                        font.pixelSize: 12
+                                    }
+                                }
+
+                                ///Name
+                                Text {
+                                    text: modelData.nume_real ? modelData.nume_real : "(necunoscut)"
+                                    color: "#2A0D16"
+                                    font.pixelSize: 14
+                                    width: parent.width - 30 - 22 - 70 - 130
+
+                                    anchors.verticalCenter: parent.verticalCenter
+                                }
+
+                                ///Song Count
+                                Text {
+                                    text: modelData.nr_piese
+                                    color: "#6E5058"
+
+                                    font.pixelSize: 13
+                                    width: 100
+                                    horizontalAlignment: Text.AlignRight
+                                    anchors.verticalCenter: parent.verticalCenter
+                                }
+
+
+                                ///Contracte Count
+                                Text {
+                                    text: modelData.nr_contracte
+
+                                    color: "#6E5058"
+                                    font.pixelSize: 13
+
+                                    width: 65
+                                    horizontalAlignment: Text.AlignRight
+                                    anchors.verticalCenter: parent.verticalCenter
+                                }
+                            }
+
+
+                            ///Separator Line
+                            Rectangle {
+                                anchors.bottom: parent.bottom
+                                width: parent.width
+                                height: 0.5
+                                color: "#EFE5DA"
+                            }
+
+                            MouseArea {
+                                id: rowMouse
+                                anchors.fill: parent
+                                cursorShape: Qt.PointingHandCursor
+                                hoverEnabled: true
+
+                                onClicked: console.log("Open artist: ", modelData.id, modelData.nume_real)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
 }
