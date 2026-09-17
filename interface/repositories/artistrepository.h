@@ -16,9 +16,8 @@ class ArtistRepository : public Repository {
             return countFrom("artisti/count_artisti");
         }
 
-        Q_INVOKABLE QVariantList listArtists(const QString &search) {
-            return queryRowsParams("artisti/list_artisti", QStringList {
-                                                               search });
+        Q_INVOKABLE QVariantList listColaboratori(const QString &tip, const QString &search) {
+            return queryRowsParams("artisti/list_colaboratori", QStringList { tip, search });
         }
 
 };

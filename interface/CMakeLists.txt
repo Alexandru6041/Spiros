@@ -48,7 +48,7 @@ qt_add_qml_module(appinterface
 
 
             queries/artisti/count_artisti.sql
-            queries/artisti/list_artisti.sql
+            queries/artisti/list_colaboratori.sql
 
             queries/piese/count_piese.sql
 

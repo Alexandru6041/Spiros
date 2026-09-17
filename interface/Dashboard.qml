@@ -2,6 +2,7 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Window
 import QtQuick.Effects
+import QtQuick.Layouts
 
 Item {
     id:dashboard
@@ -62,7 +63,7 @@ Item {
                 Repeater {
                     model: [
                         { label: "Panou", page: "panou"},
-                        { label: "Artisti", page: "artisti"},
+                        { label: "Colaboratori", page: "colaboratori"},
                         { label: "Piese", page: "piese"},
                         { label: "Albume", page: "albume"},
                         { label: "Contracte", page: "contracte"},
@@ -149,8 +150,8 @@ Item {
                     if(dashboard.currentPage === "panou")
                         return panouPage
 
-                    if(dashboard.currentPage === "artisti")
-                        return artistiPage
+                    if(dashboard.currentPage === "colaboratori")
+                        return colaboratoriPage
 
                     return panouPage
                 }
@@ -448,14 +449,15 @@ Item {
 
 
     Component {
-        id: artistiPage
+        id: colaboratoriPage
         Rectangle {
-            id:artistiRoot
+            id:colaboratoriRoot
             color: "#F2EBE2"
 
             property string searchText: ""
+            property string typeFilter: ""
 
-            property var artists: dashboard.artistRepo ? dashboard.artistRepo.listArtists(searchText) : []
+            property var artists: dashboard.artistRepo ? dashboard.artistRepo.listColaboratori(typeFilter, searchText) : []
 
             Column {
                 anchors.fill: parent
@@ -522,21 +524,38 @@ Item {
                         background: null
                         verticalAlignment: TextInput.AlignVCenter
 
-                        onTextChanged: artistiRoot.searchText = text
+                        onTextChanged: colaboratoriRoot.searchText = text
                     }
                 }
 
                 ///Column headers
-                Row {
-                    width: parent.width - 28
-                    x: 14
+                RowLayout {
+                    width: parent.width
+                    spacing: 11
+
+                    Item{
+                        Layout.preferredWidth: 30
+                    }
 
                     Text {
+                        Layout.preferredWidth: 180
                         text: "NUME"
 
                         color: "#8A6B70"
                         font.pixelSize: 11
-                        width: parent.width - 160
+                    }
+
+                    Text {
+                        text: "TIP"
+                        color: "#8A6B70"
+                        font.pixelSize: 11
+                        Layout.preferredWidth: 65
+                        horizontalAlignment: Text.AlignHCenter
+
+                    }
+
+                    Item {
+                        Layout.fillWidth: true
                     }
 
                     Text {
@@ -544,8 +563,8 @@ Item {
 
                         color: "#8A6B70"
                         font.pixelSize: 11
-                        width: 70
-                        horizontalAlignment: Text.AlignRight
+                        Layout.preferredWidth:  50
+                        horizontalAlignment: Text.AlignHCenter
                     }
 
                     Text {
@@ -553,8 +572,8 @@ Item {
 
                         color: "#8A6B70"
                         font.pixelSize: 11
-                        width: 90
-                        horizontalAlignment: Text.AlignRight
+                        Layout.preferredWidth: 100
+                        horizontalAlignment: Text.AlignHCenter
                     }
                 }
 
@@ -583,7 +602,7 @@ Item {
 
                             color: rowMouse.containsMouse ? "#FAF6F0" : "transparent"
 
-                            Row {
+                            RowLayout {
                                 anchors.left: parent.left
                                 anchors.right: parent.right
                                 anchors.verticalCenter: parent.verticalCenter
@@ -591,17 +610,18 @@ Item {
                                 anchors.rightMargin: 14
 
                                 spacing: 11
+                                ///Avatar
                                 Rectangle {
-                                    width: 30
-                                    height: 30
+                                    Layout.preferredWidth: 30
+                                    Layout.preferredHeight: 30
                                     radius: 15
                                     color: "#E8D3D0"
 
-                                    anchors.verticalCenter: parent.verticalCenter
+                                    Layout.alignment: Qt.AlignVCenter
 
                                     Text {
                                         anchors.centerIn: parent
-                                        text: modelData.nume_real ? modelData.nume_real.charAt(0).toUpperCase() : "?"
+                                        text: modelData.nume ? modelData.nume.charAt(0).toUpperCase() : "?"
                                         color: "#5A1F2C"
                                         font.pixelSize: 12
                                     }
@@ -609,23 +629,59 @@ Item {
 
                                 ///Name
                                 Text {
-                                    text: modelData.nume_real ? modelData.nume_real : "(necunoscut)"
+                                    Layout.preferredWidth: 180
+                                    Layout.alignment: Qt.AlignVCenter
+                                    text: modelData.nume ? modelData.nume : "(necunoscut)"
                                     color: "#2A0D16"
                                     font.pixelSize: 14
-                                    width: parent.width - 30 - 22 - 70 - 130
+                                    elide: Text.ElideRight
+                                }
 
-                                    anchors.verticalCenter: parent.verticalCenter
+                                ///Type Badge
+                                Rectangle {
+                                    Layout.preferredWidth: badgeText.width + 16
+                                    Layout.preferredHeight: 20
+                                    radius: 10
+                                    Layout.alignment: Qt.AlignVCenter
+
+                                    color: {
+                                        if(modelData.tip_afisat === "SRL")
+                                            return "#D0DAE0"
+                                        else if(modelData.tip_afisat === "Artist")
+                                            return "#E3D0D5"
+
+                                        return "#DAE0D0"
+                                    }
+
+                                    Text {
+                                        id:badgeText
+                                        anchors.centerIn: parent
+                                        text: modelData.tip_afisat
+                                        font.pixelSize: 10
+
+                                        color: {
+                                            if(modelData.tip_afisat === "SRL")
+                                                return "#2C4A5A"
+                                            else if(modelData.tip_afisat === "Artist")
+                                                return "#7A2438"
+
+                                            return "#3A4A2C"
+                                        }
+                                    }
+                                }
+
+                                Item {
+                                    Layout.fillWidth: true
                                 }
 
                                 ///Song Count
                                 Text {
                                     text: modelData.nr_piese
                                     color: "#6E5058"
-
+                                    Layout.alignment: Qt.AlignVCenter
                                     font.pixelSize: 13
-                                    width: 100
-                                    horizontalAlignment: Text.AlignRight
-                                    anchors.verticalCenter: parent.verticalCenter
+                                    Layout.preferredWidth: 60
+                                    horizontalAlignment: Text.AlignHCenter
                                 }
 
 
@@ -635,13 +691,11 @@ Item {
 
                                     color: "#6E5058"
                                     font.pixelSize: 13
-
-                                    width: 65
-                                    horizontalAlignment: Text.AlignRight
-                                    anchors.verticalCenter: parent.verticalCenter
+                                    Layout.alignment: Qt.AlignVCenter
+                                    Layout.preferredWidth:80
+                                    horizontalAlignment: Text.AlignHCenter
                                 }
                             }
-
 
                             ///Separator Line
                             Rectangle {
@@ -657,7 +711,7 @@ Item {
                                 cursorShape: Qt.PointingHandCursor
                                 hoverEnabled: true
 
-                                onClicked: console.log("Open artist: ", modelData.id, modelData.nume_real)
+                                onClicked: console.log("Open artist: ", modelData.id, modelData.nume)
                             }
                         }
                     }
