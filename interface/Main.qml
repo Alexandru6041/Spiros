@@ -26,8 +26,8 @@ Window {
         database: db
     }
 
-    ArtistRepository {
-        id: artistiRepository
+    ColaboratorRepository {
+        id: colaboratorRepository
         database: db
     }
 
@@ -59,7 +59,7 @@ Window {
         Dashboard {
             username: window.currentUser
             platformRepo: platformRepository
-            artistRepo: artistiRepository
+            colaboratorRepo: colaboratorRepository
             pieseRepo: pieseRepository
             contractRepo: contractRepository
 

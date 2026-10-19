@@ -24,6 +24,8 @@ class Repository : public QObject {
         void databaseChanged();
 
     protected:
+        bool executeParams(const QString &queryName, const QStringList &params);
+
         int countFrom(const QString &queryLocation);
 
         QVariantList queryRows(const QString &queryLocation);

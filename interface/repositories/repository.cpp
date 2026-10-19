@@ -45,3 +45,16 @@ QVariantList Repository::queryRowsParams(const QString &queryLocation, const QSt
 
     return m_db -> runQueryParams(sql, params);
 }
+
+bool Repository::executeParams(const QString &queryName, const QStringList &params) {
+    if(!m_db)
+        return false;
+
+    QByteArray sql = m_loader.load(queryName);
+    if(sql.isEmpty())
+        return false;
+
+    m_db -> runQueryParams(sql, params);
+
+    return true;
+}

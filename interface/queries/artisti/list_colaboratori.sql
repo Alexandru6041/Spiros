@@ -10,7 +10,7 @@ SELECT p.id, p.tip, p.nume,
 
 FROM parti p
 LEFT JOIN aliasuri al ON al.parti_id = p.id
-WHERE p.activ = true 
+WHERE p.activ = ($3 = 'true')
     AND (
         $1 = '' OR
         CASE 

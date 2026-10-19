@@ -30,7 +30,7 @@ qt_add_qml_module(appinterface
 
             repositories/platformrepository.h
 
-            repositories/artistrepository.h
+            repositories/colaboratorrepository.h
 
             repositories/pieserepository.h
 
@@ -49,12 +49,23 @@ qt_add_qml_module(appinterface
 
             queries/artisti/count_artisti.sql
             queries/artisti/list_colaboratori.sql
+            queries/artisti/artist_aliases.sql
+            queries/artisti/artist_contracts.sql
+            queries/artisti/artist_info.sql
+            queries/artisti/artist_songs.sql
+            queries/artisti/alias_add.sql
+            queries/artisti/alias_delete.sql
+            queries/artisti/artist_set_inactive.sql
+            queries/artisti/artist_set_active.sql
+
 
             queries/piese/count_piese.sql
 
             queries/platforme/top_platforms.sql
 
             queries/contracte/count_contracte.sql
+
+
 
         QML_FILES Dashboard.qml
         QML_FILES Auth.qml

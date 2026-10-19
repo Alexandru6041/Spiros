@@ -1,0 +1,1 @@
+DELETE FROM aliasuri WHERE id = $1

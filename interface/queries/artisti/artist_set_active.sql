@@ -1,0 +1,1 @@
+UPDATE parti SET activ = true WHERE id = $1

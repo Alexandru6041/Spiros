@@ -1,0 +1,1 @@
+INSERT INTO aliasuri (parti_id, alias) VALUES ($1, $2)
