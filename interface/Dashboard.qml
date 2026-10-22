@@ -875,12 +875,55 @@ Item {
                     id: detailRoot
                     color: "#F2EBE2"
 
-                    property var info: dashboard.colaboratorRepo ? dashboard.colaboratorRepo.getArtistInfo(colaboratorRoot.selectedId) : []
+                    property bool editing: false
+
+                    property int infoReload: 0
+
+                    property string editNume: ""
+                    property string editAdresa: ""
+                    property string editCUI: ""
+                    property string editObservatii: ""
+
+                    property var info: {
+                        infoReload
+                        return dashboard.colaboratorRepo ? dashboard.colaboratorRepo.getArtistInfo(colaboratorRoot.selectedId) : []
+                    }
                     property var songs: dashboard.colaboratorRepo ? dashboard.colaboratorRepo.getArtistSongs(colaboratorRoot.selectedId) : []
                     property var contracts: dashboard.colaboratorRepo ? dashboard.colaboratorRepo.getArtistContracts(colaboratorRoot.selectedId) : []
                     property var artist: info.length > 0 ? info[0] : ({})
+                    property var representations: dashboard.colaboratorRepo ? dashboard.colaboratorRepo.getRepresentations(colaboratorRoot.selectedId) : []
 
                     property var aliases: []
+
+
+                    function refreshInfo() {
+                        infoReload++
+                    }
+
+                    function enterEdit() {
+                        editNume = artist.nume ? artist.nume : ""
+                        editCUI = artist.cui ? artist.cui : ""
+                        editAdresa = artist.adresa ? artist.adresa : ""
+                        editObservatii = artist.observatii ? artist.observatii : ""
+                        editing = true
+                    }
+
+                    function cancelEdit() {
+                        editing = false
+                    }
+
+                    function saveEdit() {
+                        ///TODO
+                        dashboard.colaboratorRepo.updateArtist(
+                            colaboratorRoot.selectedId,
+                            editNume,
+                            editCUI,
+                            editAdresa,
+                            editObservatii
+                        )
+                        editing = false
+                        refreshInfo()
+                    }
 
                     function refreshAliases() {
                         aliases = []
@@ -899,297 +942,574 @@ Item {
 
                     Component.onCompleted: refreshAliases()
 
-                    Column {
+                    ScrollView {
+                        id:detailScroll
                         anchors.fill: parent
-                        anchors.margins: 30
-                        spacing: 16
+                        anchors.rightMargin: 8
+                        clip: true
+                        contentWidth: availableWidth
+                        ScrollBar.horizontal.policy: ScrollBar.AlwaysOff
+                        ScrollBar.vertical.policy: ScrollBar.AlwaysOff
 
 
-                        ///Back Button
-                        Row {
-                            width: parent.width
+                        Column {
+                            width: detailScroll.availableWidth
+                            anchors.fill: parent
+                            leftPadding: 30
+                            rightPadding: 40
+                            topPadding: 20
+                            bottomPadding: 30
+                            spacing: 16
 
-                            Text {
-                                text: "< Inapoi"
-                                color: "#8A6B70"
-                                font.pixelSize: 13
-                                width: parent.width - 250
-                                MouseArea {
-                                    anchors.fill: parent
-                                    cursorShape: Qt.PointingHandCursor
-                                    onClicked: colaboratorRoot.selectedId = -1
-                                }
-                            }
+                            ///Top Bar Buttons
+                            Item {
+                                width: parent.width - 50
+                                height: 30
 
-                            Row {
-                                spacing: 8
-
-                                Rectangle {
-                                    width: 80
-                                    height: 30
-                                    radius: 6
-
-                                    color: "transparent"
-                                    border.color: "#C9B8A8"
-                                    border.width: 1
-                                    Text {
-                                        anchors.centerIn: parent
-                                        text: "Editeaza"
-                                        color: "#6E5058"
-                                        font.pixelSize: 12
-                                    }
-
-                                    MouseArea {
-                                        anchors.fill: parent
-                                        cursorShape: Qt.PointingHandCursor
-                                        onClicked: console.log ("Edit button pressed on artist detail page ")
-                                    }
-                                }
-
-                                Rectangle {
-                                    width: toggleText.width + 24
-                                    height: 30
-                                    radius: 6
-
-                                    property bool isActive: artist.activ === "t" || artist.activ === "true"
-
-                                    color: "transparent"
-                                    border.color: isActive ? "#C9B8A8" : "#2D6A4F"
-                                    border.width: 1
-
-                                    Text {
-                                        id:toggleText
-                                        anchors.centerIn: parent
-                                        text: parent.isActive ? "Inactiv" : "Restabileste"
-                                        color: parent.isActive ? "#6E5058" : "#2D6A4F"
-                                        font.pixelSize: 12
-                                    }
-
-                                    MouseArea {
-                                        anchors.fill: parent
-                                        cursorShape: Qt.PointingHandCursor
-                                        onClicked: {
-                                            if(parent.isActive) {
-                                                console.log ("Inactive button pressed on " + artist.nume  + "'s detail page.")
-                                                confirmOverlay.openWith("Sigur vreti sa marcati acest artist ca inactiv?\n" + artist.nume +" va fi ascuns din lista.\nDupa confirmare veti fi redirectionat catre pagina 'Colaboratori'",
-                                                                        "Seteaza inactiv",
-                                                                        function (){
-                                                                            dashboard.colaboratorRepo.setInactive(colaboratorRoot.selectedId)
-                                                                            colaboratorRoot.reloadFlag++
-                                                                            colaboratorRoot.selectedId = -1
-                                                                        })
-                                            } else {
-                                                console.log ("Reactivate button pressed on " + artist.nume  + "'s detail page.")
-                                                confirmOverlay.openWith("Sigur vreti sa restabiliti acest artist?\n" + "Dupa confirmare veti fi redirectionat catre pagina 'Colaboratori'",
-                                                                        "Restabileste",
-                                                                        function (){
-                                                                            dashboard.colaboratorRepo.setActive(colaboratorRoot.selectedId)
-                                                                            colaboratorRoot.reloadFlag++
-                                                                            colaboratorRoot.selectedId = -1
-                                                                        })
-                                            }
-                                        }
-                                    }
-                                }
-
-                                Rectangle {
-                                    width: 70
-                                    height: 30
-                                    radius: 6
-
-                                    color: "transparent"
-                                    border.color: "#D9A9A9"
-                                    border.width: 1
-                                    Text {
-                                        anchors.centerIn: parent
-                                        text: "Sterge"
-                                        color: "#9B2226"
-                                        font.pixelSize: 12
-                                    }
-
-                                    MouseArea {
-                                        anchors.fill: parent
-                                        cursorShape: Qt.PointingHandCursor
-                                        onClicked: console.log ("DELETE button pressed on artist detail page ")
-                                    }
-                                }
-                            }
-                        }
-
-
-                        ///Artist Header
-                        Row {
-                            spacing: 14
-
-                            Rectangle {
-                                width: 52
-                                height: 52
-                                radius: 26
-                                color: "#E8D3D0"
-
+                                ///Back Button
                                 Text {
-                                    anchors.centerIn: parent
-                                    text: artist.nume ? artist.nume.charAt(0).toUpperCase() : "?"
-                                    color: "#5A1F2C"
-                                    font.pixelSize: 19
-                                    font.family: "Georgia"
-                                }
-                            }
-
-                            Column {
-                                spacing: 2
-
-                                Row {
-                                    spacing: 9
-
-                                    Text {
-                                        text: artist.nume ? artist.nume : "(necunoscut)"
-                                        color: "#2A0D16"
-                                        font.pixelSize: 24
-                                        font.family: "Georgia"
-                                        anchors.verticalCenter: parent.verticalCenter
-                                    }
-                                    ///Type Badge
-                                    Rectangle {
-                                        width: badgeText.width + 16
-                                        height: 20
-                                        radius: 10
-
-                                        anchors.verticalCenter: parent.verticalCenter
-                                        color: artist.tip_afisat === "SRL" ? "#D0DAE0" : (artist.tip_afisat === "Artist" ? "#E3D0D5" : (artist.tip_afiast === "Colaborator" ? "#DAE0D0" : "#E3D0D5"))
-                                        Text {
-                                            id: badgeText
-                                            anchors.centerIn: parent
-                                            text: artist.tip_afisat ? artist.tip_afisat : "STATUS MISMATCH"
-                                            font.pixelSize: 10
-                                            color: artist.tip_afisat === "SRL" ? "#2C4A5A" : (artist.tip_afisat === "Artist" ? "#7A2438" : (artist.tip_afisat === "Colaborator" ? "#3A4A2C" : "#7A2438"))
-
-                                        }
-                                    }
-                                }
-
-                                Text {
-                                    text: songs.length + (songs.length === 1 ? " piesa · " : " piese · ") + contracts.length +  (contracts.length === 1 ? " contracte · " : " contracte · ") + aliases.length  + (aliases.length === 1 ? " alias" : " alias-uri")
+                                    text: "< Inapoi"
                                     color: "#8A6B70"
-                                    font.pixelSize: 14
-                                }
-                            }
-                        }
-
-
-                        ///Aliases
-                        Rectangle {
-                            width: parent.width
-
-                            height: aliasColumn.height + 32
-                            radius: 10
-                            color: "#ffffff"
-                            border.color: "#E3D5C8"
-                            border.width: 1
-
-                            Column {
-                                id: aliasColumn
-
-                                anchors.left: parent.left
-                                anchors.right: parent.right
-                                anchors.top: parent.top
-                                anchors.margins: 16
-                                spacing: 12
-
-                                Text {
-                                    text: "ALIAS-URI"
-                                    color: "#8a6b70"
-                                    font.pixelSize: 11
-                                    font.letterSpacing: 0.5
+                                    anchors.left: parent.left
+                                    font.pixelSize: 13
+                                    width: parent.width - 250
+                                    MouseArea {
+                                        anchors.fill: parent
+                                        cursorShape: Qt.PointingHandCursor
+                                        onClicked: colaboratorRoot.selectedId = -1
+                                    }
                                 }
 
                                 Row {
                                     spacing: 8
+                                    anchors.right: parent.right
+                                    anchors.verticalCenter: parent.verticalCenter
 
                                     Rectangle {
-                                        width: 130
-                                        height: 26
-                                        radius: 13
+                                        visible: !detailRoot.editing
+                                        width: 80
+                                        height: 30
+                                        radius: 6
 
-                                        color:"#F2EBE2"
+                                        color: "transparent"
                                         border.color: "#C9B8A8"
                                         border.width: 1
-
-                                        TextField {
-                                            id:newAliasField
-                                            anchors.fill: parent
-                                            anchors.leftMargin: 10
-                                            placeholderText: "Alias nou..."
-                                            font.pixelSize: 12
-                                            color: "#2A0D16"
-                                            placeholderTextColor: "#2A0D16"
-                                            background: null
-                                            verticalAlignment: TextInput.AlignVCenter
-
-                                            onAccepted: detailRoot.addNewAlias()
-                                        }
-                                    }
-
-                                    Rectangle {
-                                        width: 30
-                                        height: 26
-                                        radius: 13
-                                        color: "#4E1826"
                                         Text {
                                             anchors.centerIn: parent
-                                            text: "+"
-                                            color: "#ECDAD6"
-                                            font.pixelSize: 16
+                                            text: "Editeaza"
+                                            color: "#6E5058"
+                                            font.pixelSize: 12
                                         }
 
                                         MouseArea {
                                             anchors.fill: parent
+                                            cursorShape: Qt.PointingHandCursor
+                                            onClicked:
+                                            {
+                                                console.log ("Edit button pressed on artist detail page ")
+                                                detailRoot.enterEdit()
+                                            }
+                                        }
+                                    }
 
+                                    Rectangle {
+                                        visible: !detailRoot.editing
+                                        width: toggleText.width + 24
+                                        height: 30
+                                        radius: 6
+
+                                        property bool isActive: artist.activ === "t" || artist.activ === "true"
+
+                                        color: "transparent"
+                                        border.color: isActive ? "#C9B8A8" : "#2D6A4F"
+                                        border.width: 1
+
+                                        Text {
+                                            id:toggleText
+                                            anchors.centerIn: parent
+                                            text: parent.isActive ? "Inactiv" : "Restabileste"
+                                            color: parent.isActive ? "#6E5058" : "#2D6A4F"
+                                            font.pixelSize: 12
+                                        }
+
+                                        MouseArea {
+                                            anchors.fill: parent
                                             cursorShape: Qt.PointingHandCursor
                                             onClicked: {
-                                                detailRoot.addNewAlias();
+                                                if(parent.isActive) {
+                                                    console.log ("Inactive button pressed on " + artist.nume  + "'s detail page.")
+                                                    confirmOverlay.openWith("Sigur vreti sa marcati acest artist ca inactiv?\n" + artist.nume +" va fi ascuns din lista.\nDupa confirmare veti fi redirectionat catre pagina 'Colaboratori'",
+                                                                            "Seteaza inactiv",
+                                                                            function (){
+                                                                                dashboard.colaboratorRepo.setInactive(colaboratorRoot.selectedId)
+                                                                                colaboratorRoot.reloadFlag++
+                                                                                colaboratorRoot.selectedId = -1
+                                                                            })
+                                                } else {
+                                                    console.log ("Reactivate button pressed on " + artist.nume  + "'s detail page.")
+                                                    confirmOverlay.openWith("Sigur vreti sa restabiliti acest artist?\n" + "Dupa confirmare veti fi redirectionat catre pagina 'Colaboratori'",
+                                                                            "Restabileste",
+                                                                            function (){
+                                                                                dashboard.colaboratorRepo.setActive(colaboratorRoot.selectedId)
+                                                                                colaboratorRoot.reloadFlag++
+                                                                                colaboratorRoot.selectedId = -1
+                                                                            })
+                                                }
+                                            }
+                                        }
+                                    }
+
+                                    Rectangle {
+                                        visible: !detailRoot.editing
+                                        width: 70
+                                        height: 30
+                                        radius: 6
+
+                                        color: "transparent"
+                                        border.color: "#D9A9A9"
+                                        border.width: 1
+                                        Text {
+                                            anchors.centerIn: parent
+                                            text: "Sterge"
+                                            color: "#9B2226"
+                                            font.pixelSize: 12
+                                        }
+
+                                        MouseArea {
+                                            anchors.fill: parent
+                                            cursorShape: Qt.PointingHandCursor
+                                            onClicked: {
+                                                console.log ("DELETE button pressed on artist " + artist.nume + " detail page.")
+
+
+                                                function joinSi(arr) { ///Joining the parti[] with a 'si' before the last member of the array for gramatical purposes.
+                                                    if(arr.length === 0)
+                                                        return ""
+                                                    if(arr.length === 1)
+                                                        return arr[0]
+
+                                                    return arr.slice(0, -1).join(", ") + " si " + arr[arr.length - 1]
+                                                }
+
+                                                var d = dashboard.colaboratorRepo.getDependencies(colaboratorRoot.selectedId)[0]
+                                                var total = Number(d.nr_piese) + Number(d.nr_contracte) + Number(d.nr_semnate) + Number(d.nr_reprezentari)
+
+                                                if(total === 0) {
+                                                    confirmOverlay.openWith(
+                                                        "Sigur vreti sa stergeti definitiv artistul " + artist.nume + "?\nAceasta actiune este permanenta si nu poate fi anulata.",
+                                                        "Sterge definitiv",
+                                                        function() {
+                                                            dashboard.colaboratorRepo.deleteArtist(colaboratorRoot.selectedId)
+                                                            colaboratorRoot.reloadFlag++
+                                                            colaboratorRoot.selectedId = -1
+                                                        }
+                                                    )
+                                                } else {
+                                                    var parti = []
+                                                    var isActive = artist.activ === "t" || artist.activ === "true"
+                                                    if(Number(d.nr_piese) > 0)
+                                                        parti.push(d.nr_piese + ((Number(d.nr_piese === 1)) ? " piesa" : " piese"))
+                                                    if(Number(d.nr_contracte) > 0)
+                                                        parti.push(d.nr_contracte + ((Number(d.nr_contracte) === 1) ? " contracte asociate" : " contract asociat"))
+                                                    if(Number(d.nr_semnate) > 0)
+                                                        parti.push(d.nr_semnate + ((Number(d.nr_semnate) === 1) ? " contracte semnate" : " contract semnat"))
+                                                    if(Number(d.nr_reprezentari) > 0)
+                                                        parti.push(d.nr_reprezentari + ((Number(d.nr_reprezentari) === 1) ? " pozitie de reprezentant intr-un SRL" : " pozitii de reprezentant in SRL-uri"))
+
+                                                    if(isActive) {
+                                                        confirmOverlay.openWith(
+                                                            artist.nume + " nu poate fi sters/stearsa, deoarece are " + joinSi(parti) + ".\nArtistul poate fi dezactivat, datele acestuia fiind pastrate in siguranta.",
+                                                            "Seteaza inactiv",
+                                                            function() {
+                                                                dashboard.colaboratorRepo.setInactive(colaboratorRoot.selectedId)
+                                                                colaboratorRoot.reloadFlag++
+                                                                colaboratorRoot.selectedId = -1
+                                                            }
+                                                        )
+                                                    } else {
+                                                        confirmOverlay.openAcknowledge(
+                                                            artist.nume + " nu poate fi sters/stearsa, deoarece are " + joinSi(parti) + ".\n" + artist.nume + " este deja inactiv.",
+                                                            "Am inteles",
+                                                            function() {}
+                                                        )
+                                                    }
+                                                }
+
+                                            }
+                                        }
+                                    }
+
+
+                                    ///Editing mode buttons
+                                    Rectangle {
+                                        visible: detailRoot.editing
+                                        width: 90
+                                        height: 30
+                                        radius: 6
+
+                                        color: "#4E1826"
+                                        Text {
+                                            anchors.centerIn: parent;
+                                            text: "Salveaza"
+                                            color: "#ECDAD6"
+                                            font.pixelSize: 12
+                                        }
+
+                                        MouseArea {
+                                            anchors.fill: parent;
+                                            cursorShape: Qt.PointingHandCursor
+                                            onClicked: {
+                                                console.log("The following edits were saved for artist " + artist.nume + "\n\tNume: " + detailRoot.editNume + "\n\tAdresa: " + detailRoot.editAdresa + "\n\tCUI: " + detailRoot.editCUI + "\n\tObservatii: " + detailRoot.editObservatii)
+                                                detailRoot.saveEdit()
+                                            }
+                                        }
+                                    }
+
+                                    Rectangle {
+                                        visible: detailRoot.editing
+                                        width: 90
+                                        height: 30
+                                        radius: 6
+
+                                        color: "transparent"
+                                        border.color: "#C9B8A8"
+                                        border.width: 1
+                                        Text {
+                                            anchors.centerIn: parent;
+                                            text: "Anlueaza"
+                                            color: "#6E5058"
+                                            font.pixelSize: 12
+                                        }
+
+                                        MouseArea {
+                                            anchors.fill: parent;
+                                            cursorShape: Qt.PointingHandCursor
+                                            onClicked: {
+                                                console.log("Edits for artist " + detailRoot.editNume + " have been canceled")
+                                                detailRoot.cancelEdit()
                                             }
                                         }
                                     }
                                 }
+                            }
 
-                                Flow {
-                                    width: parent.width
-                                    spacing: 8
-                                    Repeater {
-                                        model: aliases
-                                        Rectangle {
-                                            width: aliasRow.width + 20
-                                            height: 26
-                                            radius: 13
-                                            color: "#F2EBE2"
-                                            border.color: "#E3D5C8"
-                                            border.width: 1
 
-                                            Row {
-                                                id: aliasRow
-                                                anchors.centerIn: parent
-                                                spacing: 6
-                                                Text {
-                                                    text: modelData.alias
-                                                    color: "#2A0D16"
-                                                    font.pixelSize: 12
-                                                    anchors.verticalCenter: parent.verticalCenter
+                            ///Artist Header
+                            Row {
+                                spacing: 14
+
+                                Rectangle {
+                                    width: 52
+                                    height: 52
+                                    radius: 26
+                                    color: "#E8D3D0"
+
+                                    Text {
+                                        anchors.centerIn: parent
+                                        text: artist.nume ? artist.nume.charAt(0).toUpperCase() : "?"
+                                        color: "#5A1F2C"
+                                        font.pixelSize: 19
+                                        font.family: "Georgia"
+                                    }
+                                }
+
+                                Column {
+                                    spacing: 2
+
+                                    Row {
+                                        spacing: 9
+
+                                        Item {
+                                            width: detailRoot.editing ? 280 : 195
+                                            height: 40
+
+                                            ///VIEW-ONLY
+                                            Text {
+                                                anchors.verticalCenter: parent.verticalCenter
+                                                text: artist.nume ? artist.nume : "(necunoscut)"
+                                                color: "#2A0D16"
+                                                font.pixelSize: 24
+                                                font.family: "Georgia"
+                                                opacity: detailRoot.editing ? 0 : 1
+                                                visible: opacity > 0
+                                                Behavior on opacity {
+                                                    NumberAnimation {
+                                                        duration: 200
+                                                        easing.type: Easing.InOutQuad
+                                                    }
+                                                }
+                                            }
+
+                                            ///EDITING
+                                            Rectangle {
+                                                anchors.fill: parent
+                                                radius: 7
+                                                color: "#ffffff"
+                                                border.color: "#A04A5E"
+                                                border.width: 1.5
+                                                opacity: detailRoot.editing ? 1: 0
+                                                visible: opacity > 0
+                                                Behavior on opacity {
+                                                    NumberAnimation {
+                                                        duration: 200
+                                                        easing.type: Easing.InOutQuad
+                                                    }
                                                 }
 
-                                                Text {
-                                                    text: "ⓧ"
-                                                    color: "#A8998A"
-                                                    font.pixelSize: 15
-                                                    anchors.verticalCenter: parent.verticalCenter
+                                                TextField {
+                                                    anchors.fill: parent
+                                                    anchors.margins:3
+                                                    anchors.leftMargin: 10
+                                                    text: detailRoot.editNume
+                                                    font.pixelSize: 20
+                                                    font.family: "Georgia"
+                                                    color: "#2A0D16"
+                                                    background: null
+                                                    verticalAlignment: TextInput.AlignVCenter
 
-                                                    MouseArea {
-                                                        anchors.fill: parent
-                                                        cursorShape: Qt.PointingHandCursor
+                                                    enabled: detailRoot.editing
+                                                    onTextChanged: detailRoot.editNume = text
+                                                }
+                                            }
+                                        }
 
-                                                        onClicked: {
-                                                            dashboard.colaboratorRepo.deleteAlias(modelData.id)
-                                                            detailRoot.refreshAliases()
+                                        ///Type Badge
+                                        Rectangle {
+                                            width: badgeText.width + 16
+                                            height: 20
+                                            radius: 10
+
+                                            anchors.verticalCenter: parent.verticalCenter
+                                            color: artist.tip_afisat === "SRL" ? "#D0DAE0" : (artist.tip_afisat === "Artist" ? "#E3D0D5" : (artist.tip_afiast === "Colaborator" ? "#DAE0D0" : "#E3D0D5"))
+                                            Text {
+                                                id: badgeText
+                                                anchors.centerIn: parent
+                                                text: artist.tip_afisat ? artist.tip_afisat : "STATUS MISMATCH"
+                                                font.pixelSize: 10
+                                                color: artist.tip_afisat === "SRL" ? "#2C4A5A" : (artist.tip_afisat === "Artist" ? "#7A2438" : (artist.tip_afisat === "Colaborator" ? "#3A4A2C" : "#7A2438"))
+
+                                            }
+                                        }
+                                    }
+
+                                    Text {
+                                        text: songs.length + (songs.length === 1 ? " piesa · " : " piese · ") + contracts.length +  (contracts.length === 1 ? " contracte · " : " contracte · ") + aliases.length  + (aliases.length === 1 ? " alias" : " alias-uri")
+                                        color: "#8A6B70"
+                                        font.pixelSize: 14
+                                    }
+
+                                    Item {
+                                        width: 400
+                                        height: detailRoot.editing ? 28 : cuiRow.height
+
+                                        Row {
+                                            id: cuiRow
+                                            spacing: 16
+                                            opacity: detailRoot.editing ? 0 : 1
+                                            visible: opacity > 0 && (!!artist.cui || !!artist.adresa)
+                                            Behavior on opacity {
+                                                NumberAnimation {
+                                                    duration: 200
+                                                    easing.type: Easing.InOutQuad
+                                                }
+                                            }
+
+                                            Text {
+                                                visible: !!artist.cui ? true : false
+                                                text: "CUI: " + (!!artist.cui ? artist.cui : "")
+                                                color: "#A8998A"
+                                                font.pixelSize: 11
+                                            }
+                                            Text {
+                                                visible: artist.adresa ? true : false
+
+                                                text: "Adresa: " + (!!artist.adresa ? artist.adresa : "")
+                                                color: "#A8998A"
+                                                font.pixelSize: 11
+                                            }
+                                        }
+
+                                        ///EDIT MODE
+                                        Row {
+                                            spacing: 10
+                                            opacity: detailRoot.editing ? 1 : 0
+                                            visible: opacity > 0
+                                            Behavior on opacity {
+                                                NumberAnimation {
+                                                    duration: 200
+                                                    easing.type: Easing.InOutQuad
+                                                }
+                                            }
+
+                                            Rectangle {
+                                                width: 150
+                                                height: 28
+
+                                                radius: 6
+                                                color: "#ffffff"
+                                                border.color: "#A04A5E"
+                                                border.width: 1
+
+                                                TextField {
+                                                    anchors.fill: parent
+                                                    anchors.leftMargin: 8
+                                                    text: detailRoot.editCUI
+                                                    placeholderText: "CUI"
+                                                    placeholderTextColor: "#2A0D16"
+                                                    background: null
+                                                    font.pixelSize: 11
+                                                    color: "#2A0D16"
+                                                    verticalAlignment: TextInput.AlignVCenter
+                                                    enabled: detailRoot.editing
+                                                    onTextChanged: detailRoot.editCUI = text
+                                                }
+                                            }
+
+                                            Rectangle {
+                                                width: 230
+                                                height: 28
+
+                                                radius: 6
+                                                color: "#ffffff"
+                                                border.color: "#A04A5E"
+                                                border.width: 1
+
+                                                TextField {
+                                                    anchors.fill: parent
+                                                    anchors.leftMargin: 8
+                                                    text: detailRoot.editAdresa
+                                                    placeholderText: "Adresa"
+                                                    placeholderTextColor: "#B8A99A"
+                                                    font.pixelSize: 11
+                                                    color: "#2A0D16"
+                                                    background: null
+                                                    verticalAlignment: TextInput.AlignVCenter
+                                                    enabled: detailRoot.editing
+                                                    onTextChanged: detailRoot.editAdresa = text
+                                                }
+                                            }
+
+
+                                        }
+                                    }
+                                }
+                            }
+
+
+                            ///Aliases
+                            Rectangle {
+                                width: parent.width - 50
+
+                                height: aliasColumn.height + 32
+                                radius: 10
+                                color: "#ffffff"
+                                border.color: "#E3D5C8"
+                                border.width: 1
+
+                                Column {
+                                    id: aliasColumn
+
+                                    anchors.left: parent.left
+                                    anchors.right: parent.right
+                                    anchors.top: parent.top
+                                    anchors.margins: 16
+                                    spacing: 12
+
+                                    Text {
+                                        text: "ALIAS-URI"
+                                        color: "#8a6b70"
+                                        font.pixelSize: 11
+                                        font.letterSpacing: 0.5
+                                    }
+
+                                    Row {
+                                        spacing: 8
+
+                                        Rectangle {
+                                            width: 130
+                                            height: 26
+                                            radius: 13
+
+                                            color:"#F2EBE2"
+                                            border.color: "#C9B8A8"
+                                            border.width: 1
+
+                                            TextField {
+                                                id:newAliasField
+                                                anchors.fill: parent
+                                                anchors.leftMargin: 10
+                                                placeholderText: "Alias nou..."
+                                                font.pixelSize: 12
+                                                color: "#2A0D16"
+                                                placeholderTextColor: "#2A0D16"
+                                                background: null
+                                                verticalAlignment: TextInput.AlignVCenter
+
+                                                onAccepted: detailRoot.addNewAlias()
+                                            }
+                                        }
+
+                                        Rectangle {
+                                            width: 30
+                                            height: 26
+                                            radius: 13
+                                            color: "#4E1826"
+                                            Text {
+                                                anchors.centerIn: parent
+                                                text: "+"
+                                                color: "#ECDAD6"
+                                                font.pixelSize: 16
+                                            }
+
+                                            MouseArea {
+                                                anchors.fill: parent
+
+                                                cursorShape: Qt.PointingHandCursor
+                                                onClicked: {
+                                                    detailRoot.addNewAlias();
+                                                }
+                                            }
+                                        }
+                                    }
+
+                                    Flow {
+                                        width: parent.width
+                                        spacing: 8
+                                        Repeater {
+                                            model: aliases
+                                            Rectangle {
+                                                width: aliasRow.width + 20
+                                                height: 26
+                                                radius: 13
+                                                color: "#F2EBE2"
+                                                border.color: "#E3D5C8"
+                                                border.width: 1
+
+                                                Row {
+                                                    id: aliasRow
+                                                    anchors.centerIn: parent
+                                                    spacing: 6
+                                                    Text {
+                                                        text: modelData.alias
+                                                        color: "#2A0D16"
+                                                        font.pixelSize: 12
+                                                        anchors.verticalCenter: parent.verticalCenter
+                                                    }
+
+                                                    Text {
+                                                        text: "ⓧ"
+                                                        color: "#A8998A"
+                                                        font.pixelSize: 15
+                                                        anchors.verticalCenter: parent.verticalCenter
+
+                                                        MouseArea {
+                                                            anchors.fill: parent
+                                                            cursorShape: Qt.PointingHandCursor
+
+                                                            onClicked: {
+                                                                dashboard.colaboratorRepo.deleteAlias(modelData.id)
+                                                                detailRoot.refreshAliases()
+                                                            }
                                                         }
                                                     }
                                                 }
@@ -1198,120 +1518,282 @@ Item {
                                     }
                                 }
                             }
-                        }
 
-                        ///Songs + Contracts panels
-                        Row {
-                            width: parent.width
-                            height: 220
-                            spacing: 14
+                            ///Songs + Contracts panels
+                            Row {
+                                width: parent.width - 50
+                                height: 220
+                                spacing: 14
 
-                            Rectangle {
-                                width: (parent.width - 14) / 2
-                                height: parent.height
-                                radius: 10
+                                Rectangle {
+                                    width: (parent.width - 14) / 2
+                                    height: parent.height
+                                    radius: 10
 
-                                color: "#ffffff"
-                                border.color: "#E3D5C8"
-                                border.width: 1
-                                clip: true
+                                    color: "#ffffff"
+                                    border.color: "#E3D5C8"
+                                    border.width: 1
+                                    clip: true
 
 
-                                Column {
-                                    anchors.fill: parent
-                                    anchors.margins: 16
-                                    spacing: 10
+                                    Column {
+                                        anchors.fill: parent
+                                        anchors.margins: 16
+                                        spacing: 10
 
-                                    Text {
-                                        text: "Piese"
-                                        color: "#2A0D16"
-                                        font.pixelSize: 14
-                                        font.bold: true
-                                    }
+                                        Text {
+                                            text: "Piese"
+                                            color: "#2A0D16"
+                                            font.pixelSize: 14
+                                            font.bold: true
+                                        }
 
-                                    ListView {
-                                        width: parent.width
-                                        height: parent.height - 30
-                                        model: songs
-                                        clip: true
+                                        ListView {
+                                            width: parent.width
+                                            height: parent.height - 30
+                                            model: songs
+                                            clip: true
 
-                                        delegate: Row {
-                                            width: ListView.view.width
+                                            delegate: Row {
+                                                width: ListView.view.width
 
-                                            Text {
-                                                text:modelData.titlu
-                                                color: "#6E5058"
-                                                font.pixelSize: 13
-                                                topPadding: 6
-                                                bottomPadding: 6
-                                                width: parent.width - 55
-                                                elide: Text.ElideRight
+                                                Text {
+                                                    text:modelData.titlu
+                                                    color: "#6E5058"
+                                                    font.pixelSize: 13
+                                                    topPadding: 6
+                                                    bottomPadding: 6
+                                                    width: parent.width - 55
+                                                    elide: Text.ElideRight
+                                                }
+
+                                                Text {
+                                                    text: modelData.durata ? modelData.durata : ""
+                                                    color: "#A8998A"
+                                                    font.pixelSize: 12
+                                                    topPadding: 6
+                                                    bottomPadding: 6
+                                                    width: 55
+                                                    horizontalAlignment: Text.AlignRight
+                                                }
                                             }
+                                        }
+                                    }
+                                }
 
-                                            Text {
-                                                text: modelData.durata ? modelData.durata : ""
-                                                color: "#A8998A"
-                                                font.pixelSize: 12
-                                                topPadding: 6
-                                                bottomPadding: 6
-                                                width: 55
-                                                horizontalAlignment: Text.AlignRight
+                                ///Contracts
+                                Rectangle {
+                                    width: (parent.width - 14) / 2
+                                    height: parent.height
+                                    radius: 10
+
+                                    color: "#ffffff"
+                                    border.color: "#E3D5C8"
+                                    border.width: 1
+                                    clip: true
+
+
+                                    Column {
+                                        anchors.fill: parent
+                                        anchors.margins: 16
+                                        spacing: 10
+
+                                        Text {
+                                            text: "Contracte"
+                                            color: "#2A0D16"
+                                            font.pixelSize: 14
+                                            font.bold: true
+                                        }
+
+                                        ListView {
+                                            width: parent.width
+                                            height: parent.height - 30
+                                            model: contracts
+                                            clip: true
+
+                                            delegate: Row {
+                                                width: ListView.view.width
+                                                Text {
+                                                    text: modelData.numar
+                                                    color: "#6E5058"
+                                                    font.pixelSize: 13
+                                                    topPadding: 6
+                                                    bottomPadding: 6
+                                                    width: parent.width - 90
+                                                    elide: Text.ElideRight
+                                                }
+
+                                                Text {
+                                                    text: modelData.valoare ? (modelData.valoare + " " + modelData.moneda) : "Referinta Document"
+                                                    color: "#A8998A"
+                                                    font.pixelSize: 12
+                                                    topPadding: 6
+                                                    bottomPadding: 6
+                                                    width: 90
+                                                    horizontalAlignment: Text.AlignRight
+                                                }
                                             }
                                         }
                                     }
                                 }
                             }
 
-                            ///Contracts
+
+                            ///Representative panels
                             Rectangle {
-                                width: (parent.width - 14) / 2
-                                height: parent.height
+                                width: parent.width - 50
+                                height: 42
                                 radius: 10
 
                                 color: "#ffffff"
                                 border.color: "#E3D5C8"
                                 border.width: 1
-                                clip: true
+                                visible: representations.length > 0
 
+                                Row {
+                                    anchors.left: parent.left
+                                    anchors.verticalCenter: parent.verticalCenter
+                                    anchors.leftMargin: 14
+                                    anchors.right: parent.right
 
-                                Column {
-                                    anchors.fill: parent
-                                    anchors.margins: 16
-                                    spacing: 10
+                                    anchors.rightMargin: 14
+                                    spacing: 12
 
                                     Text {
-                                        text: "Contracte"
-                                        color: "#2A0D16"
-                                        font.pixelSize: 14
-                                        font.bold: true
+                                        text: "REPREZINTA"
+                                        color: "#8A6B70"
+                                        font.pixelSize: 10
+                                        font.letterSpacing: 0.5
+                                        anchors.verticalCenter: parent.verticalCenter
                                     }
 
-                                    ListView {
-                                        width: parent.width
-                                        height: parent.height - 30
-                                        model: contracts
-                                        clip: true
+                                    Flow {
+                                        width: parent.width - 110
+                                        spacing: 6
+                                        anchors.verticalCenter: parent.verticalCenter
 
-                                        delegate: Row {
-                                            width: ListView.view.width
-                                            Text {
-                                                text: modelData.numar
-                                                color: "#6E5058"
-                                                font.pixelSize: 13
-                                                topPadding: 6
-                                                bottomPadding: 6
-                                                width: parent.width - 90
-                                                elide: Text.ElideRight
+                                        Repeater {
+                                            model: representations
+
+                                            Rectangle {
+                                                width: chipRow.width + 20
+
+                                                height: 22
+                                                radius: 11
+
+                                                color: "#F2EBE2"
+                                                border.color: "#E3D5C8"
+                                                border.width: 1
+
+                                                Row {
+                                                    id: chipRow
+
+                                                    anchors.centerIn: parent
+                                                    spacing: 4
+                                                    Text {
+                                                        text: modelData.srl_nume
+                                                        color: "#2A0D16"
+                                                        font.pixelSize: 11
+                                                        anchors.verticalCenter: parent.verticalCenter
+                                                    }
+
+
+                                                    Text {
+                                                        visible: !!modelData.functie
+                                                        text: "· " + (modelData.functie ? modelData.functie : "")
+                                                        color: "#A8998A"
+                                                        font.pixelSize: 11
+                                                        anchors.verticalCenter: parent.verticalCenter
+                                                    }
+                                                }
                                             }
+                                        }
+                                    }
+                                }
+                            }
 
-                                            Text {
-                                                text: modelData.valoare ? (modelData.valoare + " " + modelData.moneda) : "Referinta Document"
-                                                color: "#A8998A"
-                                                font.pixelSize: 12
-                                                topPadding: 6
-                                                bottomPadding: 6
-                                                width: 90
-                                                horizontalAlignment: Text.AlignRight
+                            Rectangle {
+                                width: parent.width - 50
+                                height: obsContent.height + 28
+                                radius: 10
+                                color: "#ffffff"
+                                border.color: "#E3D5C8"
+                                border.width: 1
+
+                                visible: detailRoot.editing || (artist.observatii ? true : false)
+
+                                Item {
+                                    id:obsContent
+                                    anchors.left: parent.left
+                                    anchors.right: parent.right
+
+                                    anchors.top: parent.top
+                                    anchors.margins: 14
+
+                                    height: Math.max(obsDisplay.height, obsEditBox.height) + 24
+
+                                    Text {
+                                        text: "OBSERVATII"
+                                        color: "#8A6B70"
+                                        font.pixelSize: 10
+                                        font.letterSpacing: 0.5
+                                    }
+
+
+                                    ///VIEW MODE
+                                    Text {
+                                        id:obsDisplay
+                                        anchors.top: parent.top
+                                        anchors.topMargin: 20
+                                        width: parent.width
+
+                                        text: artist.observatii ? artist.observatii : ""
+                                        color: "#6E5058"
+                                        font.pixelSize: 13
+                                        wrapMode: Text.WordWrap
+                                        opacity: detailRoot.editing ? 0 : 1
+                                        visible: opacity > 0
+                                        Behavior on opacity {
+                                            NumberAnimation {
+                                                duration: 200
+                                                easing.type: Easing.InOutQuad
+                                            }
+                                        }
+                                    }
+
+
+                                    ///EDIT MODE
+                                    Rectangle {
+                                        id:obsEditBox
+                                        anchors.top: parent.top
+                                        anchors.topMargin: 20
+                                        width: parent.width
+                                        height: 70
+                                        radius: 7
+
+                                        color: "#ffffff"
+                                        border.color: "#A04A5E"
+                                        border.width: 1
+                                        opacity: detailRoot.editing ? 1 : 0
+                                        visible: opacity > 0
+                                        Behavior on opacity {
+                                            NumberAnimation {
+                                                duration: 200
+                                                easing.type: Easing.InOutQuad
+                                            }
+                                        }
+
+                                        TextArea {
+                                            anchors.fill: parent
+                                            anchors.margins: 6
+                                            text: detailRoot.editObservatii
+                                            font.pixelSize: 13
+                                            color: "#2A0D16"
+                                            wrapMode: TextArea.Wrap
+                                            background: null
+                                            enabled: detailRoot.editing
+                                            onTextChanged: {
+                                                detailRoot.editObservatii = text
                                             }
                                         }
                                     }
@@ -1322,6 +1804,9 @@ Item {
 
                     Rectangle {
                         id:confirmOverlay
+
+                        property bool showCancel: true
+
                         anchors.fill: parent
                         color: "#732a0d16" ///dimmed burgundy
                         visible: false
@@ -1335,6 +1820,15 @@ Item {
                             message = msg
                             confirmLabel = label
                             onConfirm = action
+                            showCancel = true
+                            visible = true
+                        }
+
+                        function openAcknowledge(msg, label, action) {
+                            message = msg
+                            confirmLabel = label
+                            onConfirm = action
+                            showCancel = false
                             visible = true
                         }
 
@@ -1384,7 +1878,7 @@ Item {
                                     }
 
                                     Text {
-                                        text: "Confirmare"
+                                        text: confirmOverlay.showCancel ? "Confirmare" : "Atentie"
                                         color: "#2A0D16"
                                         font.pixelSize: 19
                                         font.family: "Georgia"
@@ -1409,6 +1903,7 @@ Item {
 
                                     ///cancel button
                                     Rectangle {
+                                        visible: confirmOverlay.showCancel
                                         width: cancelText.width + 32;
                                         height: 36
                                         radius: 9

@@ -51,6 +51,22 @@ class ColaboratorRepository : public Repository {
         Q_INVOKABLE bool setActive(int id) {
             return executeParams("artisti/artist_set_active", QStringList { QString::number(id) });
         }
+
+        Q_INVOKABLE bool updateArtist(int id, const QString &nume, const QString &cui, const QString &adresa, const QString & observatii) {
+            return executeParams("artisti/update_artist", QStringList {QString::number(id), nume, cui, adresa, observatii});
+        }
+
+        Q_INVOKABLE QVariantList getDependencies(int id) {
+            return queryRowsParams("artisti/dependencies", QStringList { QString::number(id) });
+        }
+
+        Q_INVOKABLE bool deleteArtist(int id) {
+            return executeParams("artisti/delete_artist", QStringList { QString::number(id) });
+        }
+
+        Q_INVOKABLE QVariantList getRepresentations(int id) {
+            return queryRowsParams("artisti/representations", QStringList { QString::number(id) });
+        }
 };
 
 #endif

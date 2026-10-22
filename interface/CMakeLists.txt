@@ -57,6 +57,10 @@ qt_add_qml_module(appinterface
             queries/artisti/alias_delete.sql
             queries/artisti/artist_set_inactive.sql
             queries/artisti/artist_set_active.sql
+            queries/artisti/update_artist.sql
+            queries/artisti/dependencies.sql
+            queries/artisti/delete_artist.sql
+            queries/artisti/representations.sql
 
 
             queries/piese/count_piese.sql
